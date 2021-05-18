@@ -4,13 +4,14 @@ import cz.cuni.gamedev.nail123.roguelike.blocks.Wall
 import cz.cuni.gamedev.nail123.roguelike.extensions.asNullable
 import cz.cuni.gamedev.nail123.roguelike.tiles.GameTiles
 import cz.cuni.gamedev.nail123.roguelike.world.Area
+import cz.cuni.gamedev.nail123.roguelike.world.worlds.WaveFunctionCollapsedWorld
 import org.hexworks.zircon.internal.tileset.SwingTilesetLoader
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
 
 fun main() {
-    val game = Game()
+    val game = Game(WaveFunctionCollapsedWorld())
     game.world.currentArea.toPNG("out/render.png")
 }
 
