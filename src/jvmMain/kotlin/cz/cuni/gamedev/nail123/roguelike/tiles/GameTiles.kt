@@ -13,7 +13,7 @@ object GameTiles {
     val EMPTY: Tile = Tile.empty()
 
     // Allowed characters for tiles are https://en.wikipedia.org/wiki/Code_page_437
-    val FLOOR = characterTile('.', GameColors.FLOOR_FOREGROUND, GameColors.FLOOR_BACKGROUND)
+    val FLOOR = graphicalTile("Floor") //characterTile('.', GameColors.FLOOR_FOREGROUND, GameColors.FLOOR_BACKGROUND)
 
     // Wall tile is replaced by autotiling in Wall.kt
     val WALL = characterTile('#', GameColors.WALL_FOREGROUND, GameColors.WALL_BACKGROUND)
@@ -23,7 +23,7 @@ object GameTiles {
     val OPEN_DOOR = graphicalTile("Door open")
     val STAIRS_DOWN = graphicalTile("Stairs down")
     val STAIRS_UP = graphicalTile("Stairs up")
-    val BLACK = characterTile(' ', GameColors.BLACK, GameColors.BLACK)
+    val BLACK = graphicalTile("Void") //characterTile(' ', GameColors.BLACK, GameColors.BLACK)
 
     val RAT = graphicalTile("Animal 1")
 
