@@ -4,8 +4,11 @@ import cz.cuni.gamedev.nail123.roguelike.GameConfig;
 import cz.cuni.gamedev.nail123.roguelike.blocks.Floor;
 import cz.cuni.gamedev.nail123.roguelike.blocks.GameBlock;
 import cz.cuni.gamedev.nail123.roguelike.blocks.Wall;
+import cz.cuni.gamedev.nail123.roguelike.entities.Player;
 import cz.cuni.gamedev.nail123.roguelike.entities.objects.Stairs;
+import cz.cuni.gamedev.nail123.roguelike.entities.unplacable.FogOfWar;
 import cz.cuni.gamedev.nail123.roguelike.extensions.PositionExtensionsKt;
+import cz.cuni.gamedev.nail123.roguelike.mechanics.Pathfinding;
 import cz.cuni.gamedev.nail123.roguelike.world.builders.AreaBuilder;
 import cz.cuni.gamedev.nail123.utils.collections.ObservableMap;
 import org.hexworks.zircon.api.data.Position3D;
@@ -35,46 +38,56 @@ public class StolovaAreaBuilder extends AreaBuilder {
     @NotNull
     @Override
     public AreaBuilder create() {
-        return create(-1, -1);
+        return create(1);
     }
 
-    public AreaBuilder create(int playerX, int playerY) {
-        random.setSeed(System.currentTimeMillis());
+    public AreaBuilder create(int level) {
+        long seed = System.currentTimeMillis();
+        System.out.println("SEED: " + seed);
+        random.setSeed(seed);
         corridors = new ArrayList<>();
         rooms = generateRooms();
-        //addWalls();
         addFloor();
-        Position3D playerCoords = addPlayer();
-        Position3D stairsCoords = addStairs();
+        addWalls();
         setBlocks(blocksTmp);
+        Position3D playerCoords = addPlayer();
+        Position3D stairsCoords = addStairs(level, playerCoords);
+        //addEntity(new FogOfWar(), playerCoords);
         return this;
     }
 
     private ArrayList<Room> generateRooms() {
-        var res = generateRoomsRecursive(0, 0, getWidth(), getHeight(), 5);
+        var res = generateRoomsRecursive(0, 0, getWidth(), getHeight(), 0);
         return res;
     }
 
-    private ArrayList<Room> generateRoomsRecursive(int startX, int startY, int width, int height, int steps) {
+    private ArrayList<Room> generateRoomsRecursive(int startX, int startY, int width, int height, int depth) {
         System.out.println("************************************");
-        System.out.println("Steps = " + steps);
+        System.out.println("Depth = " + depth);
+        // decide whether to continue dividing or not
+        boolean shouldContinue = random.nextDouble() < (1.2 - depth * 0.2);
         var res = new ArrayList<Room>();
-        if (steps == 0 || (width <= 2 * minSize && height <= 2 * minSize)) {
+        if (!shouldContinue || (width < 2 * minSize + 4 && height < 2 * minSize + 4)) {
             // generate room inside of the current cell and return it
             Room room = new Room(startX, startY, width, height);
+            // room must have some border of free space
+            room.startX += 1;
+            room.startY += 1;
+            room.width -= 2;
+            room.height -= 2;
             System.out.println("Making room smaller");
             System.out.println("Width = " + width);
             System.out.println("Height = " + height);
             System.out.println("StartX = " + startX);
             System.out.println("StartY = " + startY);
-            int newWidth = width;
-            if (newWidth > minSize) newWidth = minSize + random.nextInt(width - minSize);
-            int newHeight = height;
-            if (newHeight > minSize) newHeight = minSize + random.nextInt(height - minSize);
-            int newX = startX;
-            if (newWidth < width) newX += random.nextInt(width - newWidth);
-            int newY = startY;
-            if (newHeight < height) newY += random.nextInt(height - newHeight);
+            int newWidth = room.width;
+            if (newWidth > minSize) newWidth = minSize + random.nextInt(room.width - minSize);
+            int newHeight = room.height;
+            if (newHeight > minSize) newHeight = minSize + random.nextInt(room.height - minSize);
+            int newX = room.startX;
+            if (newWidth < room.width) newX += random.nextInt(room.width - newWidth + 1);
+            int newY = room.startY;
+            if (newHeight < room.height) newY += random.nextInt(room.height - newHeight + 1);
             System.out.println("New width = " + newWidth);
             System.out.println("New height = " + newHeight);
             System.out.println("NewX = " + newX);
@@ -92,7 +105,7 @@ public class StolovaAreaBuilder extends AreaBuilder {
         // choose direction
         int i = random.nextInt(4);
         boolean isHorizontal = false;
-        if (width > 2 * minSize && ((height <= 2 * minSize) || (i < 3 && width >= height) || (i == 3 && width < height))) {
+        if (width >= 2 * minSize + 4 && ((height < 2 * minSize + 4) || (i < 3 && width >= height) || (i == 3 && width < height))) {
             // it needs to be divided vertically
             isHorizontal = true;
             int tmp = width;
@@ -103,18 +116,22 @@ public class StolovaAreaBuilder extends AreaBuilder {
             startY = tmp;
         }
         // divide horizontally
-        // choose random number so that each part has at least minimal size
-        int cut = minSize + random.nextInt(height - (2 * minSize));
+        // choose random number so that each part has at least minimal size + 2
         System.out.println("startX = " + startX);
         System.out.println("startY = " + startY);
         System.out.println("width = " + width);
         System.out.println("height = " + height);
+        int tmp = height - (2 * (minSize + 2));
+        int cut = height / 2;
+        if (tmp > 0) {
+            cut = minSize + 2 + random.nextInt(height - (2 * (minSize + 2)));
+        }
         System.out.println("Cut = " + cut);
         System.out.println("wasReversed = " + isHorizontal);
         System.out.println("=============================");
         // recursively call the rest for each part (use steps-1)
-        rooms1 = generateRoomsRecursive(startX, startY, width, cut, steps - 1);
-        rooms2 = generateRoomsRecursive(startX, startY + cut, width, height - cut, steps - 1);
+        rooms1 = generateRoomsRecursive(startX, startY, width, cut, depth + 1);
+        rooms2 = generateRoomsRecursive(startX, startY + cut, width, height - cut, depth + 1);
 
         // from both parts filter only rooms which are right next to the division line
         ArrayList<Room> filteredRooms1 = new ArrayList<>();
@@ -126,72 +143,55 @@ public class StolovaAreaBuilder extends AreaBuilder {
         // sort them according to the coordinate which will determine corridor (cellX/cellY)
         filteredRooms1.sort(Comparator.comparingInt(Room::getCellX));
         filteredRooms2.sort(Comparator.comparingInt(Room::getCellX));
-        // go through both lists at the same time, remember somewhere all possible coordinates for corridor
-        ArrayList<Integer> possibleCoordinates = new ArrayList<>();
-        logRooms(filteredRooms1);
-        logRooms(filteredRooms2);
-        System.out.println("Determining corridor...");
-        for (int coord = 0; coord < height; ++coord) {
-            boolean isRoom1 = false;
-            for (Room room : filteredRooms1) {
-                if (startX + coord >= room.cellX + 2 && startX + coord < room.cellX + room.cellWidth - 2) {
-                    isRoom1 = true;
-                    break;
-                }
-            }
-            boolean isRoom2 = false;
-            for (Room room : filteredRooms2) {
-                if (startX + coord >= room.cellX + 2 && startX + coord < room.cellX + room.cellWidth - 2) {
-                    isRoom2 = true;
-                    break;
-                }
-            }
-            if (isRoom1 && isRoom2) possibleCoordinates.add(startX + coord);
+
+        // find all interfaces of 2 rooms which are long enough, add them to the list for possible corridor locations
+        int index1 = 0, index2 = 0;
+        ArrayList<Integer> possibleLocations = new ArrayList<>();
+        while (index1 < filteredRooms1.size() && index2 < filteredRooms2.size()) {
+            Room room1 = filteredRooms1.get(index1);
+            Room room2 = filteredRooms2.get(index2);
+            int union = Math.abs(Math.min(room1.cellX, room2.cellX) - Math.max(room1.cellX + room1.cellWidth, room2.cellX + room2.cellWidth));
+            int overlap = room1.cellWidth + room2.cellWidth - union;
+            if (overlap >= 5)
+                possibleLocations.add(Math.max(room1.cellX, room2.cellX));
+            if (room1.cellX + room1.cellWidth <= room2.cellX + room2.cellWidth) ++index1;
+            if (room2.cellX + room2.cellWidth <= room1.cellX + room1.cellWidth) ++ index2;
         }
-        // randomly choose a coordinate
-        int corridorX = possibleCoordinates.get(random.nextInt(possibleCoordinates.size()));
-        // rooms, which will be joined have to be enlarged so that the corridor goes into them
-        Room corridor = new Room(corridorX - 1, 0, 3, 0);
-        for (Room room : filteredRooms1) {
-            if (corridorX >= room.cellX + 2 && corridorX < room.cellX + room.cellWidth - 2) {
-                logRoom(room);
-                if (corridorX >= room.startX + 1 && corridorX < room.startX + room.width - 1) {
-                    // the corridor is connected to the room
-                    System.out.println("Not necessary to change size.");
-                } else if (corridorX < room.startX + 1) {
-                    room.width += room.startX - corridorX + 1;
-                    room.startX = corridorX - 1; // TODO: Change randomly
-                    System.out.println("Room's size changed 1.");
-                    logRoom(room);
-                } else {
-                    room.width += corridorX - (room.startX + room.width) + 2; // TODO: Change randomly
-                    System.out.println("Room's size changed 2.");
-                    logRoom(room);
-                }
-                corridor.startY = room.startY + room.height - 1;
-                break;
-            }
+
+        // choose randomly one of the interfaces
+        int coord = possibleLocations.get(random.nextInt(possibleLocations.size()));
+        // find 2 neighbouring rooms
+        Room room1 = new Room(0, 0, 0, 0);
+        Room room2 = new Room(0, 0, 0, 0);;
+        for (Room room : filteredRooms1)
+            if (coord >= room.cellX && coord < room.cellX + room.cellWidth)
+                room1 = room;
+        for (Room room : filteredRooms2)
+            if (coord >= room.cellX && coord < room.cellX + room.cellWidth)
+                room2 = room;
+
+        // choose exact corridor location and create the corridor
+        Room corridor = new Room(0, 0, 3, 0);
+        int union = Math.abs(Math.min(room1.startX, room2.startX) - Math.max(room1.startX + room1.width, room2.startX + room2.width));
+        int overlap = room1.width + room2.width - union;
+        if (overlap >= 3) {
+            // if the rooms are overlapping enough, choose the middle of the overlap
+            corridor.startX = Math.max(room1.startX, room2.startX) + overlap / 2 - 1;
+        } else {
+            // otherwise choose the middle between the maximal startX and minimal endX and prolong the rooms if necessary
+            corridor.startX = (Math.min(room1.startX + room1.width, room2.startX + room2.width) + Math.max(room1.startX, room2.startX)) / 2 - 1;
+            //corridor.startX = (Math.max(room1.startX + room1.width, room2.startX + room2.width) - Math.min(room1.startX, room2.startX)) / 2 - 1;
+            // if the coordinate is outside of the bound of a cell, then move it (there must be at least 2 free spaces around)
+            while (corridor.startX < room1.cellX + 1 || corridor.startX < room2.cellX + 1)
+                    ++corridor.startX;
+            while (corridor.startX > room1.cellX + room1.cellWidth - corridor.width - 1 || corridor.startX > room2.cellX + room2.cellWidth - corridor.width - 1)
+                    --corridor.startX;
+            prolongRoom(room1, corridor.startX + 1);
+            prolongRoom(room2, corridor.startX + 1);
         }
-        for (Room room : filteredRooms2) {
-            if (corridorX >= room.cellX + 2 && corridorX < room.cellX + room.cellWidth - 2) {
-                logRoom(room);
-                if (corridorX >= room.startX + 1 && corridorX < room.startX + room.width - 1) {
-                    // the corridor is connected to the room
-                    System.out.println("Not necessary to change size.");
-                } else if (corridorX < room.startX + 1) {
-                    room.width += room.startX - corridorX + 1;
-                    room.startX = corridorX - 1; // TODO: Change randomly
-                    System.out.println("Room's size changed 1.");
-                    logRoom(room);
-                } else {
-                    room.width += corridorX - (room.startX + room.width) + 2; // TODO: Change randomly
-                    System.out.println("Room's size changed 2.");
-                    logRoom(room);
-                }
-                corridor.height = room.startY - corridor.startY + 1;
-                break;
-            }
-        }
+        corridor.startY = room1.startY + room1.height - 1;
+        corridor.height = room2.startY - corridor.startY + 1;
+
         // add corridor to a list
         corridor.isCorridor = true;
         System.out.println("===============");
@@ -216,13 +216,21 @@ public class StolovaAreaBuilder extends AreaBuilder {
         for (Room room : rooms) {
             // up and bottom
             for (int i = 0; i < room.width; ++i) {
-                blocksTmp.put(Position3D.create(room.startX + i, room.startY + 1, 0), new Wall());
-                blocksTmp.put(Position3D.create(room.startX + i, room.startY + room.height - 2, 0), new Wall());
+                Position3D pos1 = Position3D.create(room.startX + i, room.startY + 1, 0);
+                Position3D pos2 = Position3D.create(room.startX + i, room.startY + room.height - 2, 0);
+                if (!blocksTmp.containsKey(pos1))
+                    blocksTmp.put(pos1, new Wall());
+                if (!blocksTmp.containsKey(pos2))
+                    blocksTmp.put(pos2, new Wall());
             }
             // left and right
             for (int i = 0; i < room.height; ++i) {
-                blocksTmp.put(Position3D.create(room.startX + 1, room.startY + i, 0), new Wall());
-                blocksTmp.put(Position3D.create(room.startX + room.width - 2, room.startY + i, 0), new Wall());
+                Position3D pos1 = Position3D.create(room.startX + 1, room.startY + i, 0);
+                Position3D pos2 = Position3D.create(room.startX + room.width - 2, room.startY + i, 0);
+                if (!blocksTmp.containsKey(pos1))
+                    blocksTmp.put(pos1, new Wall());
+                if (!blocksTmp.containsKey(pos2))
+                    blocksTmp.put(pos2, new Wall());
             }
         }
 
@@ -261,35 +269,63 @@ public class StolovaAreaBuilder extends AreaBuilder {
 
     private Position3D addPlayer() {
         Room room = rooms.get(0);
-        int playerX = room.startX + 2 + random.nextInt(room.width - 3);
-        int playerY = room.startY + 2 + random.nextInt(room.height - 3);
+        int playerX = room.startX + (room.width / 2);
+        int playerY = room.startY + (room.height / 2);
         Position3D pos = Position3D.create(playerX, playerY, 0);
 
-        addAtEmptyPosition(
-                getPlayer(),
-                pos,
-                Size3D.create(getWidth() / 2 - 2, getHeight() / 2 - 2, 1)
-        );
+        System.out.println("Adding player on coordinates: [" + playerX + "," + playerY + "]");
+        addEntity(getPlayer(), pos);
 
         return pos;
     }
 
-    private Position3D addStairs() {
-        Room room = rooms.get(rooms.size() - 1);
-        int stairsX = room.startX + 2 + random.nextInt(room.width - 3);
-        int stairsY = room.startY + 2 + random.nextInt(room.height - 3);
-        Position3D pos = Position3D.create(stairsX, stairsY, 0);
+    private Position3D addStairs(int level, Position3D playerPosition) {
+        // add stairs up
+        //if (level > 1) addEntity(new Stairs(false), playerPosition);
 
-        addAtEmptyPosition(
-                new Stairs(),
-                pos,
-                Size3D.create(getWidth() / 2 - 2, getHeight() / 2 - 2, 1)
-        );
+        // add stairs down
+        var floodFill = Pathfinding.INSTANCE.floodFill(playerPosition, this, Pathfinding.INSTANCE.getEightDirectional(), Pathfinding.INSTANCE.getDoorOpening());
+        int maxDist = 0;
+        for (var position : floodFill.keySet()) {
+            int dist = floodFill.get(position);
+            if (dist > maxDist) {
+                maxDist = dist;
+            }
+        }
+        // get positions which are at most 75 % of the maximum distance away
+        ArrayList<Position3D> possiblePositions = new ArrayList<>();
+        for (var position : floodFill.keySet()) {
+            int dist = floodFill.get(position);
+            if (dist > 0.75 * (double)maxDist) {
+                possiblePositions.add(position);
+            }
+        }
+        // randomly choose one position
+        Position3D stairsPos = possiblePositions.get(random.nextInt(possiblePositions.size()));
+        System.out.println("Adding stairs on coordinates: [" + stairsPos.getX() + "," + stairsPos.getY() + "]");
+        addEntity(new Stairs(true), stairsPos);
 
-        //var floodFill = Pathfinding.INSTANCE.floodFill(areaBuilder.getPlayer().getPosition(), areaBuilder, Pathfinding.INSTANCE.getEightDirectional(), Pathfinding.INSTANCE.getDoorOpening());
-        //var staircasePosition = floodFill.keys.random();
+        return stairsPos;
+    }
 
-        return pos;
+    private void prolongRoom(Room room, int corridorX) {
+        if (corridorX >= room.startX + 1 && corridorX < room.startX + room.width - 1) {
+            // the corridor is connected to the room, not necessary to change size
+        } else if (corridorX < room.startX + 1) {
+            int newX = corridorX - 1;
+            if (newX > room.cellX + 2) newX -= random.nextInt(Math.min(2, corridorX - room.cellX - 1));
+            room.width += room.startX - newX;
+            room.startX = newX;
+            System.out.println("Room prolonged 1");
+            logRoom(room);
+        } else {
+            int newWidth = room.width + corridorX - (room.startX + room.width) + 2;
+            if (room.startX + newWidth < room.cellX + room.cellWidth - 2)
+                newWidth += random.nextInt(Math.min(2, room.cellX + room.cellWidth - room.startX - newWidth));
+            room.width = newWidth;
+            System.out.println("Room prolonged 2");
+            logRoom(room);
+        }
     }
 
     private void logRoom(Room room) {
