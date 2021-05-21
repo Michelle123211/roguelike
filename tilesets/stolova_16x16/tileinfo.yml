@@ -1,7 +1,7 @@
-# Kenney's tileset
+# Custom tileset
 ---
-name: Kenney
-size: 32
+name: Stolova
+size: 16
 files:
   - name: stolova_tileset.png
     tilesPerRow: 10

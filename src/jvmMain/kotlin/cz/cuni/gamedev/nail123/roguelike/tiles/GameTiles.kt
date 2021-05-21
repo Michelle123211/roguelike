@@ -1,19 +1,22 @@
 package cz.cuni.gamedev.nail123.roguelike.tiles
 
 import cz.cuni.gamedev.nail123.roguelike.world.Direction
+import cz.cuni.gamedev.nail123.roguelike.blocks.Floor
 import org.hexworks.zircon.api.CP437TilesetResources
 import org.hexworks.zircon.api.color.TileColor
 import org.hexworks.zircon.api.data.Tile
 import org.hexworks.zircon.api.resource.TilesetResource
 
+
 object GameTiles {
+
     val defaultCharTileset = CP437TilesetResources.rogueYun16x16()
-    val defaultGraphicalTileset = TilesetResources.stolova16x16
+    val defaultGraphicalTileset = TilesetResources.stolova2_16x16
 
     val EMPTY: Tile = Tile.empty()
 
     // Allowed characters for tiles are https://en.wikipedia.org/wiki/Code_page_437
-    val FLOOR = graphicalTile("Floor") //characterTile('.', GameColors.FLOOR_FOREGROUND, GameColors.FLOOR_BACKGROUND)
+    val FLOOR = graphicalTile("Room 46") //characterTile('.', GameColors.FLOOR_FOREGROUND, GameColors.FLOOR_BACKGROUND)
 
     // Wall tile is replaced by autotiling in Wall.kt
     val WALL = characterTile('#', GameColors.WALL_FOREGROUND, GameColors.WALL_BACKGROUND)
@@ -23,7 +26,7 @@ object GameTiles {
     val OPEN_DOOR = graphicalTile("Door open")
     val STAIRS_DOWN = graphicalTile("Stairs down")
     val STAIRS_UP = graphicalTile("Stairs up")
-    val BLACK = graphicalTile("Void") //characterTile(' ', GameColors.BLACK, GameColors.BLACK)
+    val BLACK = characterTile(' ', GameColors.BLACK, GameColors.BLACK)
 
     val RAT = graphicalTile("Animal 1")
 
@@ -35,26 +38,28 @@ object GameTiles {
     private val all8 = Direction.eightDirections.sumBy { it.flag }
     val wallTiling = Autotiling(
             // Default
-            graphicalTile("Wall 2"),
-            // Walls all around
-            all8 to graphicalTile("Floor"),
-            // Walls everywhere except one corner
-            all8 - Direction.NORTH_WEST.flag to graphicalTile("Wall 7"),
-            all8 - Direction.NORTH_EAST.flag to graphicalTile("Wall 6"),
-            all8 - Direction.SOUTH_WEST.flag to graphicalTile("Wall 3"),
-            all8 - Direction.SOUTH_EAST.flag to graphicalTile("Wall 1"),
-            // Lines
-            // TODO: Differenciate between left and right Wall 4, up and bottom Wall 2
-            Direction.NORTH + Direction.SOUTH to graphicalTile("Wall 4"),
-            Direction.WEST + Direction.EAST to graphicalTile("Wall 2"),
-            // Corners
-            Direction.NORTH + Direction.EAST to graphicalTile("Wall 6"),
-            Direction.NORTH + Direction.WEST to graphicalTile("Wall 7"),
-            Direction.SOUTH + Direction.EAST to graphicalTile("Wall 1"),
-            Direction.SOUTH + Direction.WEST to graphicalTile("Wall 3"),
-            // Single adjacent (horizontal ones fallback to default)
-            Direction.NORTH.flag to graphicalTile("Wall 4"),
-            Direction.SOUTH.flag to graphicalTile("Wall 4")
+            graphicalTile("Void"),
+
+
+            all8 to graphicalTile("Void"),
+
+            // outer corners of the rooms
+            all8 - Direction.NORTH_WEST.flag to graphicalTile("Room 4"),
+            all8 - Direction.NORTH_EAST.flag to graphicalTile("Room 7"),
+            all8 - Direction.SOUTH_WEST.flag to graphicalTile("Room 26"),
+            all8 - Direction.SOUTH_EAST.flag to graphicalTile("Room 34"),
+
+            // straight walls around rooms
+            all8 - Direction.NORTH_WEST.flag - Direction.NORTH.flag - Direction.NORTH_EAST.flag to graphicalTile("Room 12"),
+            all8 - Direction.NORTH_WEST.flag - Direction.WEST.flag - Direction.SOUTH_WEST.flag to graphicalTile("Room 28"),
+            all8 - Direction.NORTH_EAST.flag - Direction.EAST.flag - Direction.SOUTH_EAST.flag to graphicalTile("Room 36"),
+            all8 - Direction.SOUTH_WEST.flag - Direction.SOUTH.flag - Direction.SOUTH_EAST.flag to graphicalTile("Room 42"),
+
+            // inner corners to the corridors
+            Direction.SOUTH.flag + Direction.EAST.flag + Direction.SOUTH_EAST.flag to graphicalTile("Room 33"),
+            Direction.SOUTH.flag + Direction.WEST.flag + Direction.SOUTH_WEST.flag to graphicalTile("Room 41"),
+            Direction.NORTH.flag + Direction.EAST.flag + Direction.NORTH_EAST.flag to graphicalTile("Room 44"),
+            Direction.NORTH.flag + Direction.WEST.flag + Direction.NORTH_WEST.flag to graphicalTile("Room 45"),
     )
 
     fun characterTile(char: Char,

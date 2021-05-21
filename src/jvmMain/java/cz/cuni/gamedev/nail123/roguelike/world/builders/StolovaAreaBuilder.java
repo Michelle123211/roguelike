@@ -22,7 +22,7 @@ import java.util.Random;
 
 public class StolovaAreaBuilder extends AreaBuilder {
 
-    ObservableMap<Position3D, GameBlock> blocksTmp = new ObservableMap<>();
+    ObservableMap<Position3D, GameBlock> blocksTmp;
 
     int minSize = 7;
 
@@ -42,6 +42,8 @@ public class StolovaAreaBuilder extends AreaBuilder {
     }
 
     public AreaBuilder create(int level) {
+        this.blocksTmp = new ObservableMap<>();
+        this.blocksTmp.put(Position3D.unknown(), new Floor());
         long seed = System.currentTimeMillis();
         System.out.println("SEED: " + seed);
         random.setSeed(seed);
@@ -49,6 +51,7 @@ public class StolovaAreaBuilder extends AreaBuilder {
         rooms = generateRooms();
         addFloor();
         addWalls();
+        fillEmptySpace();
         setBlocks(blocksTmp);
         Position3D playerCoords = addPlayer();
         Position3D stairsCoords = addStairs(level, playerCoords);
@@ -216,8 +219,8 @@ public class StolovaAreaBuilder extends AreaBuilder {
         for (Room room : rooms) {
             // up and bottom
             for (int i = 0; i < room.width; ++i) {
-                Position3D pos1 = Position3D.create(room.startX + i, room.startY + 1, 0);
-                Position3D pos2 = Position3D.create(room.startX + i, room.startY + room.height - 2, 0);
+                Position3D pos1 = Position3D.create(room.startX + i, room.startY, 0);
+                Position3D pos2 = Position3D.create(room.startX + i, room.startY + room.height - 1, 0);
                 if (!blocksTmp.containsKey(pos1))
                     blocksTmp.put(pos1, new Wall());
                 if (!blocksTmp.containsKey(pos2))
@@ -225,8 +228,8 @@ public class StolovaAreaBuilder extends AreaBuilder {
             }
             // left and right
             for (int i = 0; i < room.height; ++i) {
-                Position3D pos1 = Position3D.create(room.startX + 1, room.startY + i, 0);
-                Position3D pos2 = Position3D.create(room.startX + room.width - 2, room.startY + i, 0);
+                Position3D pos1 = Position3D.create(room.startX, room.startY + i, 0);
+                Position3D pos2 = Position3D.create(room.startX + room.width - 1, room.startY + i, 0);
                 if (!blocksTmp.containsKey(pos1))
                     blocksTmp.put(pos1, new Wall());
                 if (!blocksTmp.containsKey(pos2))
@@ -306,6 +309,16 @@ public class StolovaAreaBuilder extends AreaBuilder {
         addEntity(new Stairs(true), stairsPos);
 
         return stairsPos;
+    }
+
+    private void fillEmptySpace() {
+        for (int x = 0; x < getWidth(); ++x) {
+            for (int y = 0; y < getHeight(); y++) {
+                var pos = Position3D.create(x, y, 0);
+                if (!blocksTmp.containsKey(pos))
+                    blocksTmp.put(pos, new Wall());
+            }
+        }
     }
 
     private void prolongRoom(Room room, int corridorX) {
