@@ -3,12 +3,13 @@ package cz.cuni.gamedev.nail123.roguelike
 import cz.cuni.gamedev.nail123.roguelike.tiles.GameTiles
 import cz.cuni.gamedev.nail123.roguelike.world.World
 import cz.cuni.gamedev.nail123.roguelike.world.worlds.StolovaJavaWorld
+import cz.cuni.gamedev.nail123.roguelike.world.worlds.DungeonWorld
 import org.hexworks.zircon.api.ColorThemes
 import org.hexworks.zircon.api.application.AppConfig
 import org.hexworks.zircon.api.data.Size3D
 
 object GameConfig {
-    fun defaultWorld(): World = StolovaJavaWorld()
+    fun defaultWorld(): World = DungeonWorld()
 
     const val DUNGEON_LEVELS = 15
     val THEME = ColorThemes.zenburnVanilla()

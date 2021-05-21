@@ -1,0 +1,108 @@
+# Custom tileset
+---
+name: Stolova3
+size: 16
+files:
+  - name: stolova_tileset3.png
+    tilesPerRow: 10
+    tiles:
+      - name: Room 0
+      - name: Room 1
+      - name: Room 2
+      - name: Room 3
+      - name: Room 4
+      - name: Room 5
+      - name: Room 6
+      - name: Room 7
+      - name: Room 8
+      - name: Room 9
+      - name: Room 10
+      - name: Room 11
+      - name: Room 12
+      - name: Room 13
+      - name: Room 14
+      - name: Room 15
+      - name: Room 16
+      - name: Room 17
+      - name: Room 18
+      - name: Room 19
+      - name: Room 20
+      - name: Room 21
+      - name: Room 22
+      - name: Room 23
+      - name: Room 24
+      - name: Room 25
+      - name: Room 26
+      - name: Room 27
+      - name: Room 28
+      - name: Room 29
+      - name: Room 30
+      - name: Room 31
+      - name: Room 32
+      - name: Room 33
+      - name: Room 34
+      - name: Room 35
+      - name: Room 36
+      - name: Room 37
+      - name: Room 38
+      - name: Room 39
+      - name: Room 40
+      - name: Room 41
+      - name: Room 42
+      - name: Room 43
+      - name: Room 44
+      - name: Room 45
+      - name: Room 46
+      - name: Room 47
+      - name: Void
+      - name: Stairs down
+      - name: Female
+      - name: Animal 1
+      - name: Magic wand
+      - name: Floor
+      - name: Door open
+      - name: Door closed
+      - name: Stairs up
+      - name: Unknown 1
+      - name: Unknown 2
+      - name: Unknown 3
+      - name: Unknown 4
+      - name: Unknown 5
+      - name: Unknown 6
+      - name: Unknown 7
+      - name: Unknown 8
+      - name: Unknown 9
+      - name: Unknown 10
+      - name: Unknown 11
+      - name: Unknown 12
+      - name: Unknown 13
+      - name: Unknown 14
+      - name: Unknown 15
+      - name: Unknown 16
+      - name: Unknown 17
+      - name: Unknown 18
+      - name: Unknown 19
+      - name: Unknown 20
+      - name: Unknown 21
+      - name: Unknown 22
+      - name: Unknown 23
+      - name: Unknown 24
+      - name: Unknown 25
+      - name: Unknown 26
+      - name: Unknown 27
+      - name: Unknown 28
+      - name: Unknown 29
+      - name: Unknown 30
+      - name: Unknown 31
+      - name: Unknown 32
+      - name: Unknown 33
+      - name: Unknown 34
+      - name: Unknown 35
+      - name: Unknown 36
+      - name: Unknown 37
+      - name: Unknown 38
+      - name: Unknown 39
+      - name: Unknown 40
+      - name: Unknown 41
+      - name: Unknown 42
+      - name: Unknown 43
