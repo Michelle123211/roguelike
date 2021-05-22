@@ -16,7 +16,7 @@ object GameTiles {
     val EMPTY: Tile = Tile.empty()
 
     // Allowed characters for tiles are https://en.wikipedia.org/wiki/Code_page_437
-    val FLOOR = graphicalTile("Void")//graphicalTile("Room 46") //characterTile('.', GameColors.FLOOR_FOREGROUND, GameColors.FLOOR_BACKGROUND)
+    val FLOOR = graphicalTile("Void")
 
     // Wall tile is replaced by autotiling in Wall.kt
     val WALL = characterTile('#', GameColors.WALL_FOREGROUND, GameColors.WALL_BACKGROUND)
@@ -95,9 +95,6 @@ object GameTiles {
             Direction.NORTH.flag + Direction.SOUTH.flag to graphicalTile("Room 14"),
             Direction.WEST.flag + Direction.SOUTH.flag to graphicalTile("Room 15"),
             Direction.EAST.flag + Direction.SOUTH.flag to graphicalTile("Room 18"),
-
-
-            // TODO: 39
 
             // one neighbour
             Direction.NORTH.flag to graphicalTile("Room 1"),
