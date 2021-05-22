@@ -1,7 +1,6 @@
 package cz.cuni.gamedev.nail123.roguelike.tiles
 
 import cz.cuni.gamedev.nail123.roguelike.world.Direction
-import cz.cuni.gamedev.nail123.roguelike.blocks.Floor
 import org.hexworks.zircon.api.CP437TilesetResources
 import org.hexworks.zircon.api.color.TileColor
 import org.hexworks.zircon.api.data.Tile
@@ -16,7 +15,7 @@ object GameTiles {
     val EMPTY: Tile = Tile.empty()
 
     // Allowed characters for tiles are https://en.wikipedia.org/wiki/Code_page_437
-    val FLOOR = graphicalTile("Floor") //characterTile('.', GameColors.FLOOR_FOREGROUND, GameColors.FLOOR_BACKGROUND)
+    val FLOOR = graphicalTile("Floor")
 
     // Wall tile is replaced by autotiling in Wall.kt
     val WALL = characterTile('#', GameColors.WALL_FOREGROUND, GameColors.WALL_BACKGROUND)
