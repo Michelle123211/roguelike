@@ -6,11 +6,13 @@ import cz.cuni.gamedev.nail123.roguelike.blocks.GameBlock;
 import cz.cuni.gamedev.nail123.roguelike.blocks.Wall;
 import cz.cuni.gamedev.nail123.roguelike.entities.Player;
 import cz.cuni.gamedev.nail123.roguelike.entities.objects.Stairs;
+import cz.cuni.gamedev.nail123.roguelike.entities.objects.Door;
 import cz.cuni.gamedev.nail123.roguelike.entities.unplacable.FogOfWar;
 import cz.cuni.gamedev.nail123.roguelike.extensions.PositionExtensionsKt;
 import cz.cuni.gamedev.nail123.roguelike.mechanics.Pathfinding;
 import cz.cuni.gamedev.nail123.roguelike.world.builders.AreaBuilder;
 import cz.cuni.gamedev.nail123.utils.collections.ObservableMap;
+import org.hexworks.zircon.api.data.Position;
 import org.hexworks.zircon.api.data.Position3D;
 import org.hexworks.zircon.api.data.Size3D;
 import org.jetbrains.annotations.NotNull;
@@ -53,8 +55,9 @@ public class StolovaAreaBuilder extends AreaBuilder {
         addWalls();
         fillEmptySpace();
         setBlocks(blocksTmp);
+        addDoor();
         Position3D playerCoords = addPlayer();
-        Position3D stairsCoords = addStairs(level, playerCoords);
+        addStairs(level, playerCoords);
         //addEntity(new FogOfWar(), playerCoords);
         return this;
     }
@@ -194,6 +197,8 @@ public class StolovaAreaBuilder extends AreaBuilder {
         }
         corridor.startY = room1.startY + room1.height - 1;
         corridor.height = room2.startY - corridor.startY + 1;
+        room1.corridors.add(corridor);
+        room2.corridors.add(corridor);
 
         // add corridor to a list
         corridor.isCorridor = true;
@@ -236,7 +241,6 @@ public class StolovaAreaBuilder extends AreaBuilder {
                     blocksTmp.put(pos2, new Wall());
             }
         }
-
     }
 
     private void addFloor() {
@@ -270,6 +274,39 @@ public class StolovaAreaBuilder extends AreaBuilder {
         }
     }
 
+    private void addDoor() {
+        for (Room room : rooms) {
+            if (!room.isCorridor) {
+                for (Room corridor : room.corridors) {
+                    if (corridor.startX < room.startX) {
+                        // from left
+                        addEntity(new Door(), Position3D.create(room.startX, corridor.startY + 1, 0));
+                    } else if (corridor.startX >= room.startX + room.width - 1) {
+                        // from right
+                        addEntity(new Door(), Position3D.create(room.startX + room.width - 1, corridor.startY + 1, 0));
+                    } else if (corridor.startY < room.startY) {
+                        // from up
+                        addEntity(new Door(), Position3D.create(corridor.startX + 1, room.startY, 0));
+                    } else {
+                        // from bottom
+                        addEntity(new Door(), Position3D.create(corridor.startX + 1, room.startY + room.height - 1, 0));
+                    }
+                }
+            }
+
+
+            //if (room.isCorridor) {
+            //    if (room.isVertical) {
+            //        addEntity(new Door(), Position3D.create(room.startX + 1, room.startY, 0));
+            //        addEntity(new Door(), Position3D.create(room.startX + 1, room.startY + room.height - 1, 0));
+           //     } else {
+            //        addEntity(new Door(), Position3D.create(room.startX, room.startY + 1, 0));
+            //        addEntity(new Door(), Position3D.create(room.startX + room.width - 1, room.startY + 1, 0));
+            //    }
+            //}
+        }
+    }
+
     private Position3D addPlayer() {
         Room room = rooms.get(0);
         int playerX = room.startX + (room.width / 2);
@@ -282,7 +319,7 @@ public class StolovaAreaBuilder extends AreaBuilder {
         return pos;
     }
 
-    private Position3D addStairs(int level, Position3D playerPosition) {
+    private void addStairs(int level, Position3D playerPosition) {
         // add stairs up
         //if (level > 1) addEntity(new Stairs(false), playerPosition);
 
@@ -307,8 +344,6 @@ public class StolovaAreaBuilder extends AreaBuilder {
         Position3D stairsPos = possiblePositions.get(random.nextInt(possiblePositions.size()));
         System.out.println("Adding stairs on coordinates: [" + stairsPos.getX() + "," + stairsPos.getY() + "]");
         addEntity(new Stairs(true), stairsPos);
-
-        return stairsPos;
     }
 
     private void fillEmptySpace() {
@@ -381,6 +416,8 @@ public class StolovaAreaBuilder extends AreaBuilder {
         public int cellWidth;
         public int cellHeight;
 
+        public ArrayList<Room> corridors;
+
         public boolean isCorridor;
         public boolean isVertical;
 
@@ -394,6 +431,8 @@ public class StolovaAreaBuilder extends AreaBuilder {
             this.cellY = startY;
             this.cellWidth = width;
             this.cellHeight = height;
+
+            this.corridors = new ArrayList<>();
 
             this.isCorridor = false;
             this.isVertical = true;
@@ -413,6 +452,9 @@ public class StolovaAreaBuilder extends AreaBuilder {
             res.startY = this.startX;
             res.width = this.height;
             res.height = this.width;
+            res.corridors = new ArrayList<>();
+            for (Room corridor : this.corridors)
+                res.corridors.add(corridor.reversed());
             res.isCorridor = this.isCorridor;
             res.isVertical = !this.isVertical;
             return res;

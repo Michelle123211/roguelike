@@ -11,12 +11,12 @@ import org.hexworks.zircon.api.resource.TilesetResource
 object GameTiles {
 
     val defaultCharTileset = CP437TilesetResources.rogueYun16x16()
-    val defaultGraphicalTileset = TilesetResources.stolova2_16x16
+    val defaultGraphicalTileset = TilesetResources.stolova16x16
 
     val EMPTY: Tile = Tile.empty()
 
     // Allowed characters for tiles are https://en.wikipedia.org/wiki/Code_page_437
-    val FLOOR = graphicalTile("Room 46") //characterTile('.', GameColors.FLOOR_FOREGROUND, GameColors.FLOOR_BACKGROUND)
+    val FLOOR = graphicalTile("Floor") //characterTile('.', GameColors.FLOOR_FOREGROUND, GameColors.FLOOR_BACKGROUND)
 
     // Wall tile is replaced by autotiling in Wall.kt
     val WALL = characterTile('#', GameColors.WALL_FOREGROUND, GameColors.WALL_BACKGROUND)
@@ -28,7 +28,7 @@ object GameTiles {
     val STAIRS_UP = graphicalTile("Stairs up")
     val BLACK = characterTile(' ', GameColors.BLACK, GameColors.BLACK)
 
-    val RAT = graphicalTile("Animal 1")
+    val RAT = graphicalTile("Animal")
 
     val SWORD = graphicalTile("Magic wand")
 
@@ -44,22 +44,22 @@ object GameTiles {
             all8 to graphicalTile("Void"),
 
             // outer corners of the rooms
-            all8 - Direction.NORTH_WEST.flag to graphicalTile("Room 4"),
-            all8 - Direction.NORTH_EAST.flag to graphicalTile("Room 7"),
-            all8 - Direction.SOUTH_WEST.flag to graphicalTile("Room 26"),
-            all8 - Direction.SOUTH_EAST.flag to graphicalTile("Room 34"),
+            all8 - Direction.NORTH_WEST.flag to graphicalTile("Wall outer N W"),
+            all8 - Direction.NORTH_EAST.flag to graphicalTile("Wall outer N E"),
+            all8 - Direction.SOUTH_WEST.flag to graphicalTile("Wall outer S W"),
+            all8 - Direction.SOUTH_EAST.flag to graphicalTile("Wall outer S E"),
 
             // straight walls around rooms
-            all8 - Direction.NORTH_WEST.flag - Direction.NORTH.flag - Direction.NORTH_EAST.flag to graphicalTile("Room 12"),
-            all8 - Direction.NORTH_WEST.flag - Direction.WEST.flag - Direction.SOUTH_WEST.flag to graphicalTile("Room 28"),
-            all8 - Direction.NORTH_EAST.flag - Direction.EAST.flag - Direction.SOUTH_EAST.flag to graphicalTile("Room 36"),
-            all8 - Direction.SOUTH_WEST.flag - Direction.SOUTH.flag - Direction.SOUTH_EAST.flag to graphicalTile("Room 42"),
+            all8 - Direction.NORTH_WEST.flag - Direction.NORTH.flag - Direction.NORTH_EAST.flag to graphicalTile("Wall down"),
+            all8 - Direction.NORTH_WEST.flag - Direction.WEST.flag - Direction.SOUTH_WEST.flag to graphicalTile("Wall right"),
+            all8 - Direction.NORTH_EAST.flag - Direction.EAST.flag - Direction.SOUTH_EAST.flag to graphicalTile("Wall left"),
+            all8 - Direction.SOUTH_WEST.flag - Direction.SOUTH.flag - Direction.SOUTH_EAST.flag to graphicalTile("Wall up"),
 
             // inner corners to the corridors
-            Direction.SOUTH.flag + Direction.EAST.flag + Direction.SOUTH_EAST.flag to graphicalTile("Room 33"),
-            Direction.SOUTH.flag + Direction.WEST.flag + Direction.SOUTH_WEST.flag to graphicalTile("Room 41"),
-            Direction.NORTH.flag + Direction.EAST.flag + Direction.NORTH_EAST.flag to graphicalTile("Room 44"),
-            Direction.NORTH.flag + Direction.WEST.flag + Direction.NORTH_WEST.flag to graphicalTile("Room 45"),
+            Direction.SOUTH.flag + Direction.EAST.flag + Direction.SOUTH_EAST.flag to graphicalTile("Wall inner S E"),
+            Direction.SOUTH.flag + Direction.WEST.flag + Direction.SOUTH_WEST.flag to graphicalTile("Wall inner S W"),
+            Direction.NORTH.flag + Direction.EAST.flag + Direction.NORTH_EAST.flag to graphicalTile("Wall inner N E"),
+            Direction.NORTH.flag + Direction.WEST.flag + Direction.NORTH_WEST.flag to graphicalTile("Wall inner N W"),
     )
 
     fun characterTile(char: Char,
