@@ -37,7 +37,6 @@ public class StolovaJavaWorld extends World {
         this.random = new Random();
         random.setSeed(System.currentTimeMillis());
 
-        // Start with an empty area
         this.areaBuilder = (new StolovaAreaBuilder(GameConfig.INSTANCE.getAREA_SIZE(), GameConfig.INSTANCE.getVISIBLE_SIZE())).create();
 
         for (int i = 0; i <= currentLevel; ++i) {
