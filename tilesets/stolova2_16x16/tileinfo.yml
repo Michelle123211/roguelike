@@ -60,9 +60,10 @@ files:
       - name: Animal 1
       - name: Magic wand
       - name: Floor
-      - name: Door open
       - name: Door closed
+      - name: Door open
       - name: Stairs up
+      - name: Male
       - name: Unknown 1
       - name: Unknown 2
       - name: Unknown 3
@@ -105,4 +106,3 @@ files:
       - name: Unknown 40
       - name: Unknown 41
       - name: Unknown 42
-      - name: Unknown 43
