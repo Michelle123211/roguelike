@@ -11,7 +11,7 @@ import org.hexworks.zircon.api.resource.TilesetResource
 object GameTiles {
 
     val defaultCharTileset = CP437TilesetResources.rogueYun16x16()
-    val defaultGraphicalTileset = TilesetResources.stolova3_16x16
+    val defaultGraphicalTileset = TilesetResources.stolova2_16x16
 
     val EMPTY: Tile = Tile.empty()
 

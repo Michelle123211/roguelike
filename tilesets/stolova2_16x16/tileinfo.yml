@@ -1,6 +1,6 @@
 # Custom tileset
 ---
-name: Stolova
+name: Stolova2
 size: 16
 files:
   - name: stolova_tileset2.png
@@ -53,20 +53,23 @@ files:
       - name: Room 44
       - name: Room 45
       - name: Room 46
+      - name: Room 47
       - name: Void
-      - name: Unknown 1
-      - name: Unknown 2
-      - name: Door closed
-      - name: Door open
       - name: Stairs down
       - name: Female
-      - name: Male
+      - name: Animal 1
+      - name: Magic wand
+      - name: Floor
+      - name: Door open
+      - name: Door closed
+      - name: Stairs up
+      - name: Unknown 1
+      - name: Unknown 2
       - name: Unknown 3
       - name: Unknown 4
       - name: Unknown 5
       - name: Unknown 6
       - name: Unknown 7
-      - name: Animal 1
       - name: Unknown 8
       - name: Unknown 9
       - name: Unknown 10
@@ -76,7 +79,6 @@ files:
       - name: Unknown 14
       - name: Unknown 15
       - name: Unknown 16
-      - name: Magic wand
       - name: Unknown 17
       - name: Unknown 18
       - name: Unknown 19
@@ -104,5 +106,3 @@ files:
       - name: Unknown 41
       - name: Unknown 42
       - name: Unknown 43
-      - name: Unknown 44
-      - name: Unknown 45
