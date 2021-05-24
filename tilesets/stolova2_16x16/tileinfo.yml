@@ -3,7 +3,7 @@
 name: Stolova2
 size: 16
 files:
-  - name: stolova_tileset2.png
+  - name: stolova_tileset2_2.png
     tilesPerRow: 10
     tiles:
       - name: Room 0
